@@ -97,18 +97,20 @@ export class OwnershipService {
   constructor(private _http: HttpClient) {}
   public _typeOfHouse: BehaviorSubject<any> = new BehaviorSubject<any>(this.types);
   public _ownership: BehaviorSubject<Ownership> = new BehaviorSubject<Ownership>(this.ownership);
+
   register(ownership: Ownership) {
     ownership.userId = this.userId
-   if(ownership.additional_services.length > 0) {
-    const filter:any = ownership.additional_services.map(service => service.title)
-    console.log(ownership);
-    ownership.additional_services = filter
-   }
+    if(ownership.additional_services.length > 0) {
+      const filter: any = ownership.additional_services.map((service: Service) => service?.title)
+      console.log(ownership);
+      ownership.additional_services = filter
+    }
     const clonedObject = { ...ownership };
     delete clonedObject.images;
     return this._http.post(`${environment.apiUrl}/ownership/`, clonedObject)
   }
   registerProperty(ownership: Ownership) {
-    return this._http.post(`${environment.apiUrl}/files/uploads/${this.userId}`, ownership.images)
+    const ownershipId = window.localStorage.getItem('ownershipId')
+    return this._http.post(`${environment.apiUrl}/files/uploads/${ownershipId}`, ownership.images)
   }
 }

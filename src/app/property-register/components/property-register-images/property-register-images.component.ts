@@ -25,12 +25,17 @@ export class PropertyRegisterImagesComponent {
   }
   onFileChange() {
     this.names = []
+  
     const filemultiple: any = document.querySelector("#dropzone-file");
     const formData = new FormData();
     for (let i = 0; i < filemultiple.files.length; i++) {
       let image = filemultiple.files[i].name
       this.names.push(image)
       formData.append("files", filemultiple.files[i]);
+    }
+    const id = window.localStorage.getItem('ownershipId')
+    if(id) {
+      this.ownership.userId = id
     }
     this.ownership.images = formData
     this.ownershipService._ownership.next(this.ownership)
