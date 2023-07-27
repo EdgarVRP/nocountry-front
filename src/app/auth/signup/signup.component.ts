@@ -4,6 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { errorMessage } from 'src/app/helpers/errors';
 import { Router } from '@angular/router';
 import { Role } from 'src/app/auth/interfaces/User';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-signup',
@@ -20,10 +21,10 @@ export class SignupComponent {
   errorMessage = errorMessage
   submitted = false;
   public registerForm: FormGroup
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private _snackBar: MatSnackBar) {
     this.registerForm = new FormGroup({
-      name: new FormControl('', [Validators.pattern('^[a-zA-Z]+$'), Validators.required]),
-      username: new FormControl('', [Validators.pattern('^(?!^\\s+$)\\s*[A-Za-z\\s]+\\s*$'), Validators.required]),
+      name: new FormControl('', [Validators.pattern('^(?!^\\s+$)\\s*[A-Za-zÁÉÍÓÚáéíóú\\s]+\\s*$'), Validators.required]),
+      username: new FormControl('', [Validators.pattern('^[A-Za-z0-9]+$'), Validators.required]),
       email: new FormControl('', [Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'), Validators.required]),
       password: new FormControl('', [Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/), Validators.required]),
       role: new FormControl('', Validators.required),
@@ -49,10 +50,19 @@ export class SignupComponent {
   register() {
     this.submitted = true
     if(this.registerForm.valid) {
-      this.authService.register(this.registerForm.value).subscribe(({data}: any) => {
-        window.localStorage.setItem('userId', data.id)
-        this.router.navigate(['/auth/signin'])
+      this.authService.register(this.registerForm.value).subscribe({
+        next: ({data}: any) => {
+          this.router.navigate(['/auth/signin'])
+        }, 
+        error: (error) => {
+          this._snackBar.open(this.errorMessage.error, 'Aceptar', {
+            duration: 5000,
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          });
+        }
       })
+      
     }
   }
 }
